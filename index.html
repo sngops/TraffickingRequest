@@ -1,34 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RequestIQ - Trafficking</title>
+
+  <!-- Fonts & jsPDF -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f0f4f8;
+    /* Page base */
+    html, body {
+      height: 100%;
       margin: 0;
-      padding: 40px 20px;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 48px 20px;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
+      box-sizing: border-box;
+      color: #122033;
     }
+
+    /* Debug banner (visible even if other CSS hides content) */
+    .debug-banner {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 999999;
+      background: #ffeb3b;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #222;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    /* Layout */
     .wrapper {
       display: flex;
       flex-wrap: wrap;
       gap: 24px;
       max-width: 1200px;
       width: 100%;
+      align-items: flex-start;
     }
     .container {
       background: #ffffff;
       border-radius: 20px;
-      padding: 36px;
-      flex: 1 1 600px;
+      padding: 32px;
+      flex: 1 1 640px;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      min-width: 300px;
+      box-sizing: border-box;
     }
     .sidebar {
       flex: 1 1 300px;
@@ -39,24 +70,16 @@
       font-size: 13.5px;
       color: #444;
       line-height: 1.5;
-    }
-    .sidebar h3 {
-      margin-top: 0;
-      font-size: 15px;
-      color: #003366;
-    }
-    .sidebar ol {
-      padding-left: 18px;
-    }
-    .sidebar ol li {
-      margin-bottom: 10px;
+      min-width: 220px;
+      box-sizing: border-box;
+      height: fit-content;
     }
     .header {
-      text-align: center;
-      font-size: 24px;
+      text-align: left;
+      font-size: 22px;
       font-weight: 600;
       color: #003366;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     .form-group {
@@ -66,11 +89,10 @@
       background: #f9fbfc;
       border-radius: 10px;
       padding: 12px 16px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       border: 1px solid #dde3ea;
       gap: 12px;
     }
-
     .label-wrap {
       display: flex;
       align-items: flex-start;
@@ -78,15 +100,13 @@
       flex: 1;
       min-width: 0;
     }
-
     .form-group label {
       font-size: 15px;
       color: #333;
       line-height: 1.25;
     }
-
     .form-group input {
-      width: 64px;
+      width: 72px;
       padding: 8px;
       font-size: 15px;
       text-align: center;
@@ -95,41 +115,6 @@
       background-color: #fff;
     }
 
-    button {
-      display: block;
-      width: 100%;
-      background-color: #0057FF;
-      color: white;
-      font-size: 16px;
-      padding: 14px 0;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    button:hover {
-      background-color: #0046cc;
-    }
-
-    #result {
-      text-align: center;
-      font-size: 16px;
-      font-weight: 500;
-      margin-top: 20px;
-      white-space: pre-line;
-    }
-
-    #footer-note {
-      margin-top: 26px;
-      text-align: center;
-      font-size: 14px;
-    }
-    #footer-note a {
-      color: #0057FF;
-      text-decoration: underline;
-    }
-
-    /* Tooltip UI */
     .tip {
       position: relative;
       display: inline-flex;
@@ -182,244 +167,254 @@
       transform: rotate(45deg);
       z-index: 21;
     }
+
+    /* Buttons and results */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #0057FF;
+      color: white;
+      font-size: 15px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: #e9eef8;
+      color: #003366;
+    }
+
+    #result {
+      text-align: left;
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 18px;
+      white-space: pre-line;
+    }
+
+    #footer-note {
+      margin-top: 26px;
+      text-align: left;
+      font-size: 14px;
+    }
+    #footer-note a {
+      color: #0057FF;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 880px) {
+      .wrapper { flex-direction: column-reverse; }
+      .container { order: 2; }
+      .sidebar { order: 1; width: 100%; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="wrapper">
-    <div class="container">
+  <!-- Debug banner so we can confirm the page loads -->
+  <div class="debug-banner">RequestIQ loaded ✅</div>
+
+  <div class="wrapper" role="main">
+    <div class="container" aria-live="polite">
       <div class="header">RequestIQ - Trafficking</div>
 
-      <div id="form"></div>
+      <!-- Form placeholder -->
+      <div id="form" aria-label="Trafficking inputs"></div>
 
-      <button onclick="calculate()">Calculate Effort</button>
-      <button onclick="downloadPDF()">Download PDF</button>
-      <p id="result"></p>
+      <div class="controls">
+        <button class="btn" id="calcBtn">Calculate Effort</button>
+        <button class="btn secondary" id="pdfBtn">Download PDF</button>
+      </div>
+
+      <p id="result" aria-atomic="true"></p>
 
       <div id="footer-note">
-        ✅ Ready to proceed? <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank">Initiate trafficking task here</a>.
+        ✅ Ready to proceed? <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank" rel="noopener">Initiate trafficking task here</a>.
       </div>
     </div>
 
-    <div class="sidebar">
+    <aside class="sidebar" aria-label="notes">
       <h3>Please Note:</h3>
       <ol>
-        <li>
-          “Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set.
-          (For example: JOBCODE123 static and JOBCODE123 animated = 2 sets; JOBCODE098 version A and JOBCODE098 version B = two sets)
-        </li>
-        <li>
-          Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.
-        </li>
-        <li>
-          The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval.
-          Trafficking review will be limited to a compatibility check via Campaign Manager 360 (CM360) for Ad Ops and final confirmation from Sci-Reg.
-          If any functional issues are identified during the creative verification review, the scope of work will increase.
-        </li>
-        <li>
-          For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops.
-          If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.
-        </li>
+        <li>“Sets” refer to distinct versions tied to a job code. Distinct creative versions under the same job code count as separate sets.</li>
+        <li>Only one static backup set is permitted per campaign. You can use multiple static banners in rotation.</li>
+        <li>Scope assumes assets have completed QA and Sci-Reg approval. If functional issues are found in creative verification, effort increases.</li>
+        <li>For 1x1 placements, confirm deliverables with vendors. Incorrect compatibility types in Prisma may add scope.</li>
       </ol>
-    </div>
+    </aside>
   </div>
 
+  <noscript>
+    <div style="position:fixed;bottom:12px;left:12px;background:#ffdddd;padding:8px 10px;border-radius:8px;border:1px solid #ffcccc;">
+      JavaScript is required for the calculator to work.
+    </div>
+  </noscript>
+
   <script>
-    const questions = [
-      "New animated banner sets",
-      "New static banner sets",
-      "New video sets",
-      "New audio sets",
-      "New DCO banner sets",
-      "New placements",
-      "New 1x1 site-served placements",
-      "Number of existing placements",
-      "Using existing and/ or new assets with new rotations? If yes, how many sets of new rotations?",
-      "Using existing assets and existing rotations? If yes, how many sets of existing rotations?",
-      "Updating URLs of existing assets? If yes, how many sets of assets?",
-      "Number of vendors involved in this trafficking request"
-    ];
+    document.addEventListener('DOMContentLoaded', function () {
+      // Questions and tips
+      const questions = [
+        "New animated banner sets",
+        "New static banner sets",
+        "New video sets",
+        "New audio sets",
+        "New DCO banner sets",
+        "New placements",
+        "New 1x1 site-served placements",
+        "Number of existing placements",
+        "Using existing and/ or new assets with new rotations? If yes, how many sets of new rotations?",
+        "Using existing assets and existing rotations? If yes, how many sets of existing rotations?",
+        "Updating URLs of existing assets? If yes, how many sets of assets?",
+        "Number of vendors involved in this trafficking request"
+      ];
 
-    // Inline helper tooltips for each question (kept short + practical)
-    const tips = [
-      "Count distinct animated job codes/versions as sets (e.g., 2 job codes = 2 sets).",
-      "Count distinct static job codes/versions as sets (backup set is separate from live rotation sets).",
-      "Count distinct video versions/job codes as sets.",
-      "Count distinct audio versions/job codes as sets.",
-      "Count DCO creative sets that require setup/QA (often higher effort than standard display).",
-      "Count new CM360 placements being created/trafficked (not including existing ones).",
-      "Only include 1x1 site-served placements (often extra coordination / compatibility).",
-      "Count placements that already exist and require mapping/updates.",
-      "Rotations that are new (new weightings/creative groupings) using existing and/or new assets.",
-      "Rotations that already exist and are being reused/updated (not brand new setups).",
-      "If destination URLs change for existing assets, count the number of asset sets needing URL changes.",
-      "Vendors = distinct external partners/platforms requiring coordination (e.g., publishers, DSPs, ad servers)."
-    ];
+      const tips = [
+        "Count distinct animated job codes/versions as sets (e.g., 2 job codes = 2 sets).",
+        "Count distinct static job codes/versions as sets (backup set is separate from live rotation sets).",
+        "Count distinct video versions/job codes as sets.",
+        "Count distinct audio versions/job codes as sets.",
+        "Count DCO creative sets that require setup/QA (often higher effort than standard display).",
+        "Count new CM360 placements being created/trafficked (not including existing ones).",
+        "Only include 1x1 site-served placements (often extra coordination / compatibility).",
+        "Count placements that already exist and require mapping/updates.",
+        "Rotations that are new (new weightings/creative groupings) using existing and/or new assets.",
+        "Rotations that already exist and are being reused/updated (not brand new setups).",
+        "If destination URLs change for existing assets, count the number of asset sets needing URL changes.",
+        "Vendors = distinct external partners/platforms requiring coordination (e.g., publishers, DSPs, ad servers)."
+      ];
 
-    // Render form
-    const form = document.getElementById("form");
-    questions.forEach((q, i) => {
-      const id = "q" + (i + 1);
-      const group = document.createElement("div");
-      group.className = "form-group";
-      group.innerHTML = `
-        <div class="label-wrap">
-          <label for="${id}">${q}</label>
-          <span class="tip" tabindex="0" aria-label="Help" data-tip="${tips[i].replace(/"/g, '&quot;')}">ⓘ</span>
-        </div>
-        <input id="${id}" type="number" min="0" value="0" />
-      `;
-      form.appendChild(group);
-    });
-
-    // ---- New scoring logic (Base + Rotations + Conditional Vendor boost + Floors) ----
-    function computeScoreAndComplexity() {
-      const animated = parseInt(document.getElementById("q1").value) || 0;
-      const statics  = parseInt(document.getElementById("q2").value) || 0;
-      const video    = parseInt(document.getElementById("q3").value) || 0;
-      const audio    = parseInt(document.getElementById("q4").value) || 0;
-      const dco      = parseInt(document.getElementById("q5").value) || 0;
-
-      const newPlacements = parseInt(document.getElementById("q6").value) || 0;
-      const oneByOne      = parseInt(document.getElementById("q7").value) || 0;
-      const existingPl    = parseInt(document.getElementById("q8").value) || 0;
-
-      const newRot   = parseInt(document.getElementById("q9").value) || 0;
-      const existRot = parseInt(document.getElementById("q10").value) || 0;
-
-      const urlUpdates = parseInt(document.getElementById("q11").value) || 0;
-      const vendors    = parseInt(document.getElementById("q12").value) || 0;
-
-      // Base creative workload (rotations are handled separately on purpose)
-      let score = 0;
-      score += 0.5  * statics;
-      score += 1.5  * animated;
-      score += 0.75 * video;
-      score += 0.5  * audio;
-      score += 2.0  * dco; // DCO also has floors below; this keeps it visible in the score too
-
-      // Placements are intentionally low-weight unless combined with drivers
-      const placementsTotal = newPlacements + existingPl + oneByOne;
-      if (placementsTotal >= 151 && placementsTotal <= 300) score += 1;
-      else if (placementsTotal >= 301 && placementsTotal <= 600) score += 2;
-      else if (placementsTotal >= 601) score += 3;
-
-      // 1x1s can add a little friction, but still not dominant by itself
-      if (oneByOne >= 11 && oneByOne <= 30) score += 1;
-      else if (oneByOne >= 31) score += 2;
-
-      // URL updates (light)
-      if (urlUpdates > 0) score += 1;
-
-      // Vendors (light by default, capped)
-      if (vendors > 1) score += Math.min(2, 0.25 * (vendors - 1));
-
-      // Multi-format bonus (static/animated/video/audio/DCO)
-      const formatCount =
-        (statics > 0 ? 1 : 0) +
-        (animated > 0 ? 1 : 0) +
-        (video > 0 ? 1 : 0) +
-        (audio > 0 ? 1 : 0) +
-        (dco > 0 ? 1 : 0);
-
-      if (formatCount === 3) score += 2;
-      else if (formatCount >= 4) score += 4;
-
-      // Rotations are the dominant complexity driver
-      const totalRot = newRot + existRot;
-
-      if (totalRot >= 1 && totalRot <= 5) score += 6;
-      else if (totalRot >= 6 && totalRot <= 9) score += 12;
-      else if (totalRot >= 10 && totalRot <= 11) score += 20;
-      else if (totalRot >= 12) score += 30;
-
-      // Extra friction for lots of existing-rotation updates
-      if (existRot >= 6) score += 4;
-
-      // Conditional vendor complexity bump (only when paired with true drivers)
-      const hasDrivers = (totalRot > 0) || (dco > 0) || (animated >= 6) || (formatCount >= 3);
-      if (vendors >= 4 && hasDrivers) score += 6;
-
-      // Score-based level
-      const levelByScore =
-        score >= 30 ? "Complex" :
-        score >= 20 ? "Large" :
-        score >= 12 ? "Medium" : "Small";
-
-      // Floors (triggers) — enforce minimum complexity
-      let minLevel = "Small";
-      if (dco >= 1) minLevel = "Large";
-      if (dco >= 4) minLevel = "Complex";
-
-      if (newRot >= 12 || totalRot >= 14) minLevel = "Complex";
-
-      const order = { "Small": 1, "Medium": 2, "Large": 3, "Complex": 4 };
-      const finalLevel = (order[minLevel] > order[levelByScore]) ? minLevel : levelByScore;
-
-      return {
-        score,
-        levelByScore,
-        minLevel,
-        finalLevel,
-        placementsTotal,
-        formatCount,
-        totalRot
-      };
-    }
-
-    function calculate() {
-      const r = computeScoreAndComplexity();
-      document.getElementById("result").innerText =
-        `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.finalLevel}`;
-    }
-
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.setFontSize(14);
-      doc.text("RequestIQ - Trafficking Summary", 10, 20);
-
-      let y = 30;
-
-      // Print responses
+      // Build form
+      const form = document.getElementById('form');
       questions.forEach((q, i) => {
-        const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
-        doc.setFontSize(11);
+        const id = 'q' + (i + 1);
+        const group = document.createElement('div');
+        group.className = 'form-group';
+        group.innerHTML = `
+          <div class="label-wrap">
+            <label for="${id}">${q}</label>
+            <span class="tip" tabindex="0" aria-label="Help" data-tip="${tips[i].replace(/"/g,'&quot;')}">ⓘ</span>
+          </div>
+          <input id="${id}" type="number" min="0" value="0" inputmode="numeric" />
+        `;
+        form.appendChild(group);
+      });
 
-        const line = `${i + 1}. ${q}: ${val}`;
-        // Basic wrap to avoid overflow
-        const lines = doc.splitTextToSize(line, 180);
-        doc.text(lines, 10, y);
-        y += (lines.length * 7);
+      // scoring function
+      function computeScoreAndComplexity() {
+        const get = idx => parseInt(document.getElementById('q' + idx).value, 10) || 0;
+        const animated = get(1), statics = get(2), video = get(3), audio = get(4), dco = get(5);
+        const newPlacements = get(6), oneByOne = get(7), existingPl = get(8);
+        const newRot = get(9), existRot = get(10);
+        const urlUpdates = get(11), vendors = get(12);
 
-        if (y > 265) {
-          doc.addPage();
-          y = 20;
+        let score = 0;
+        score += 0.5  * statics;
+        score += 1.5  * animated;
+        score += 0.75 * video;
+        score += 0.5  * audio;
+        score += 2.0  * dco;
+
+        const placementsTotal = newPlacements + existingPl + oneByOne;
+        if (placementsTotal >= 151 && placementsTotal <= 300) score += 1;
+        else if (placementsTotal >= 301 && placementsTotal <= 600) score += 2;
+        else if (placementsTotal >= 601) score += 3;
+
+        if (oneByOne >= 11 && oneByOne <= 30) score += 1;
+        else if (oneByOne >= 31) score += 2;
+
+        if (urlUpdates > 0) score += 1;
+
+        if (vendors > 1) score += Math.min(2, 0.25 * (vendors - 1));
+
+        const formatCount =
+          (statics > 0 ? 1 : 0) +
+          (animated > 0 ? 1 : 0) +
+          (video > 0 ? 1 : 0) +
+          (audio > 0 ? 1 : 0) +
+          (dco > 0 ? 1 : 0);
+
+        if (formatCount === 3) score += 2;
+        else if (formatCount >= 4) score += 4;
+
+        const totalRot = newRot + existRot;
+        if (totalRot >= 1 && totalRot <= 5) score += 6;
+        else if (totalRot >= 6 && totalRot <= 9) score += 12;
+        else if (totalRot >= 10 && totalRot <= 11) score += 20;
+        else if (totalRot >= 12) score += 30;
+
+        if (existRot >= 6) score += 4;
+
+        const hasDrivers = (totalRot > 0) || (dco > 0) || (animated >= 6) || (formatCount >= 3);
+        if (vendors >= 4 && hasDrivers) score += 6;
+
+        const levelByScore =
+          score >= 30 ? "Complex" :
+          score >= 20 ? "Large" :
+          score >= 12 ? "Medium" : "Small";
+
+        let minLevel = "Small";
+        if (dco >= 1) minLevel = "Large";
+        if (dco >= 4) minLevel = "Complex";
+        if (newRot >= 12 || totalRot >= 14) minLevel = "Complex";
+
+        const order = { "Small": 1, "Medium": 2, "Large": 3, "Complex": 4 };
+        const finalLevel = (order[minLevel] > order[levelByScore]) ? minLevel : levelByScore;
+
+        return { score, levelByScore, minLevel, finalLevel, placementsTotal, formatCount, totalRot };
+      }
+
+      // Actions
+      const resultEl = document.getElementById('result');
+      document.getElementById('calcBtn').addEventListener('click', () => {
+        const r = computeScoreAndComplexity();
+        resultEl.innerText = `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.finalLevel}`;
+      });
+
+      document.getElementById('pdfBtn').addEventListener('click', async () => {
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          doc.setFontSize(14);
+          doc.text("RequestIQ - Trafficking Summary", 10, 20);
+          let y = 30;
+
+          questions.forEach((q, i) => {
+            const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
+            doc.setFontSize(11);
+            const line = `${i + 1}. ${q}: ${val}`;
+            const lines = doc.splitTextToSize(line, 180);
+            doc.text(lines, 10, y);
+            y += (lines.length * 7);
+            if (y > 265) { doc.addPage(); y = 20; }
+          });
+
+          const r = computeScoreAndComplexity();
+          if (y > 245) { doc.addPage(); y = 20; }
+          doc.setFontSize(12);
+          doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 6);
+          doc.text(`Complexity Level: ${r.finalLevel}`, 10, y + 16);
+          y += 34;
+          doc.setFontSize(10);
+          doc.setTextColor(0, 87, 255);
+          doc.textWithLink("✅ Ready to proceed? Initiate trafficking task here.", 10, y, {
+            url: "https://genome.klick.com/task/template/create-template-form.html?task=2249335"
+          });
+          doc.save("requestiq-trafficking-summary.pdf");
+        } catch (err) {
+          console.error(err);
+          alert("PDF download failed. Check console for details.");
         }
       });
 
-      const r = computeScoreAndComplexity();
-
-      if (y > 245) {
-        doc.addPage();
-        y = 20;
-      }
-
-      doc.setFontSize(12);
-      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 6);
-      doc.text(`Complexity Level: ${r.finalLevel}`, 10, y + 16);
-
-      y += 34;
-
-      doc.setFontSize(10);
-      doc.setTextColor(0, 87, 255);
-      doc.textWithLink("✅ Ready to proceed? Initiate trafficking task here.", 10, y, {
-        url: "https://genome.klick.com/task/template/create-template-form.html?task=2249335"
-      });
-
-      doc.save("requestiq-trafficking-summary.pdf");
-    }
+      // Final: small accessibility focus
+      resultEl.innerText = "Ready — enter values and click Calculate.";
+    });
   </script>
 </body>
 </html>
