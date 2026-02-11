@@ -134,32 +134,17 @@
       <p id="result"></p>
 
       <div id="footer-note">
-        ✅ Ready to proceed?
-        <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank">
-          Initiate trafficking task here
-        </a>.
+        ✅ Ready to proceed? <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank">Initiate trafficking task here</a>.
       </div>
     </div>
 
     <div class="sidebar">
       <h3>Please Note:</h3>
       <ol>
-        <li>
-          “Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set.
-          (For example: JOBCODE123 static and JOBCODE123 animated = 2 sets; JOBCODE098 version A, and JOBCODE098 version B = two sets)
-        </li>
-        <li>
-          Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.
-        </li>
-        <li>
-          The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval.
-          Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg.
-          If any functional issues are identified during the creative verification review, the scope of work will increase.
-        </li>
-        <li>
-          For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops.
-          If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.
-        </li>
+        <li>“Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set. (For example: JOBCODE123 static and JOBCODE123 animated =  2 sets; JOBCODE098 version A, and JOBCODE098 version B = two sets)</li>
+        <li>Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.</li>
+        <li>The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval. Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg. If any functional issues are identified during the creative verification review, the scope of work will increase.</li>
+        <li>For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops. If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.</li>
       </ol>
     </div>
   </div>
@@ -180,84 +165,103 @@
       "Number of vendors involved in this trafficking request"
     ];
 
+    // Render form
     const form = document.getElementById("form");
     questions.forEach((q, i) => {
       const id = "q" + (i + 1);
       const group = document.createElement("div");
       group.className = "form-group";
-      group.innerHTML =
-        `<label for="${id}">${q}</label>
-         <input id="${id}" type="number" min="0" value="0" />`;
+      group.innerHTML = `<label for="${id}">${q}</label><input id="${id}" type="number" min="0" value="0" />`;
       form.appendChild(group);
     });
 
+    // ---- Scoring logic (per RequestIQ_Point_System_Specfeb11.xlsx) ----
     function computeScoreAndComplexity() {
-      const animated = +q1.value || 0;
-      const statics  = +q2.value || 0;
-      const video    = +q3.value || 0;
-      const audio    = +q4.value || 0;
-      const dco      = +q5.value || 0;
+      const animated = parseInt(document.getElementById("q1").value) || 0;
+      const statics  = parseInt(document.getElementById("q2").value) || 0;
+      const video    = parseInt(document.getElementById("q3").value) || 0;
+      const audio    = parseInt(document.getElementById("q4").value) || 0;
+      const dco      = parseInt(document.getElementById("q5").value) || 0;
 
-      const newPlacements = +q6.value || 0;
-      const oneByOne      = +q7.value || 0;
-      const existingPl    = +q8.value || 0;
+      const newPlacements = parseInt(document.getElementById("q6").value) || 0;
+      const oneByOne      = parseInt(document.getElementById("q7").value) || 0;
+      const existingPl    = parseInt(document.getElementById("q8").value) || 0;
 
-      const newRot   = +q9.value || 0;
-      const existRot = +q10.value || 0;
+      const newRot   = parseInt(document.getElementById("q9").value) || 0;
+      const existRot = parseInt(document.getElementById("q10").value) || 0;
 
-      const urlUpdates = +q11.value || 0;
-      const vendors    = +q12.value || 0;
+      const urlUpdates = parseInt(document.getElementById("q11").value) || 0;
+      const vendors    = parseInt(document.getElementById("q12").value) || 0;
 
       let score = 0;
-      score += 0.5  * statics;
+
+      // Base creative weights
       score += 1.5  * animated;
+      score += 0.5  * statics;
       score += 0.75 * video;
       score += 0.5  * audio;
       score += 2.0  * dco;
 
-      const placementsTotal = newPlacements + existingPl + oneByOne;
-      if (placementsTotal >= 151 && placementsTotal <= 300) score += 1;
-      else if (placementsTotal >= 301 && placementsTotal <= 600) score += 2;
-      else if (placementsTotal >= 601) score += 3;
+      // Total placements bucket (Q6 + Q7 + Q8)
+      const placementsTotal = newPlacements + oneByOne + existingPl;
+      if (placementsTotal >= 0 && placementsTotal <= 100) score += 2;
+      else if (placementsTotal <= 200) score += 3;
+      else if (placementsTotal <= 300) score += 4;
+      else score += 5;
 
-      if (oneByOne >= 11 && oneByOne <= 30) score += 1;
-      else if (oneByOne >= 31) score += 2;
+      // 1x1 friction (separate from placements bucket)
+      if (oneByOne >= 0 && oneByOne <= 10) score += 3;
+      else if (oneByOne <= 30) score += 6;
+      else score += 9;
 
-      if (urlUpdates > 0) score += 1;
-      if (vendors > 1) score += Math.min(2, 0.25 * (vendors - 1));
-
-      const formatCount =
-        (statics > 0) + (animated > 0) + (video > 0) + (audio > 0) + (dco > 0);
-      if (formatCount === 3) score += 2;
-      else if (formatCount >= 4) score += 4;
-
+      // Rotations bucket (dominant)
       const totalRot = newRot + existRot;
-      if (totalRot >= 1 && totalRot <= 5) score += 6;
+      if (totalRot === 0) score += 0;
+      else if (totalRot <= 5) score += 6;
       else if (totalRot <= 9) score += 12;
       else if (totalRot <= 11) score += 20;
       else score += 30;
 
+      // Existing rotations bonus
       if (existRot >= 6) score += 4;
 
-      const hasDrivers = totalRot > 0 || dco > 0 || animated >= 6 || formatCount >= 3;
-      if (vendors >= 4 && hasDrivers) score += 6;
+      // URL updates
+      if (urlUpdates > 0) score += 1;
 
-      let level =
+      // Vendors (linear weight)
+      score += 0.75 * vendors;
+
+      // Multi-format bonus (static/animated/video/audio/DCO)
+      const formatCount =
+        (statics > 0 ? 1 : 0) +
+        (animated > 0 ? 1 : 0) +
+        (video > 0 ? 1 : 0) +
+        (audio > 0 ? 1 : 0) +
+        (dco > 0 ? 1 : 0);
+
+      if (formatCount === 3) score += 2;
+      else if (formatCount >= 4) score += 4;
+
+      // Score-based complexity mapping
+      let complexity =
         score >= 30 ? "Complex" :
         score >= 20 ? "Large" :
         score >= 12 ? "Medium" : "Small";
 
-      if (dco >= 1 && level === "Small") level = "Large";
-      if (dco >= 4) level = "Complex";
-      if (newRot >= 12 || totalRot >= 14) level = "Complex";
+      // Floors / triggers
+      if (dco >= 1 && (complexity === "Small" || complexity === "Medium")) complexity = "Large";
+      if (dco >= 4) complexity = "Complex";
 
-      return { score, level };
+      if (newRot >= 12) complexity = "Complex";
+      if (totalRot >= 14) complexity = "Complex";
+
+      return { score, complexity };
     }
 
     function calculate() {
       const r = computeScoreAndComplexity();
-      result.innerText =
-        `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.level}`;
+      document.getElementById("result").innerText =
+        `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.complexity}`;
     }
 
     async function downloadPDF() {
@@ -268,17 +272,40 @@
       doc.text("RequestIQ - Trafficking Summary", 10, 20);
 
       let y = 30;
+
       questions.forEach((q, i) => {
-        const val = +document.getElementById("q" + (i + 1)).value || 0;
-        const lines = doc.splitTextToSize(`${i + 1}. ${q}: ${val}`, 180);
+        const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
+        doc.setFontSize(11);
+
+        const line = `${i + 1}. ${q}: ${val}`;
+        const lines = doc.splitTextToSize(line, 180);
         doc.text(lines, 10, y);
-        y += lines.length * 7;
-        if (y > 265) { doc.addPage(); y = 20; }
+        y += (lines.length * 7);
+
+        if (y > 265) {
+          doc.addPage();
+          y = 20;
+        }
       });
 
       const r = computeScoreAndComplexity();
-      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 10);
-      doc.text(`Complexity Level: ${r.level}`, 10, y + 20);
+
+      if (y > 245) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.setFontSize(12);
+      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 6);
+      doc.text(`Complexity Level: ${r.complexity}`, 10, y + 16);
+
+      y += 34;
+
+      doc.setFontSize(10);
+      doc.setTextColor(0, 87, 255);
+      doc.textWithLink("✅ Ready to proceed? Initiate trafficking task here.", 10, y, {
+        url: "https://genome.klick.com/task/template/create-template-form.html?task=2249335"
+      });
 
       doc.save("requestiq-trafficking-summary.pdf");
     }
