@@ -58,6 +58,7 @@
       color: #003366;
       margin-bottom: 24px;
     }
+
     .form-group {
       display: flex;
       justify-content: space-between;
@@ -84,6 +85,7 @@
       border-radius: 6px;
       background-color: #fff;
     }
+
     button {
       display: block;
       width: 100%;
@@ -99,6 +101,7 @@
     button:hover {
       background-color: #0046cc;
     }
+
     #result {
       text-align: center;
       font-size: 16px;
@@ -106,6 +109,7 @@
       margin-top: 20px;
       white-space: pre-line;
     }
+
     #footer-note {
       margin-top: 26px;
       text-align: center;
@@ -130,32 +134,17 @@
       <p id="result"></p>
 
       <div id="footer-note">
-        ✅ Ready to proceed?
-        <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank">
-          Initiate trafficking task here
-        </a>.
+        ✅ Ready to proceed? <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank">Initiate trafficking task here</a>.
       </div>
     </div>
 
     <div class="sidebar">
       <h3>Please Note:</h3>
       <ol>
-        <li>
-          “Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set.
-          (For example: JOBCODE123 static and JOBCODE123 animated = 2 sets; JOBCODE098 version A, and JOBCODE098 version B = two sets)
-        </li>
-        <li>
-          Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.
-        </li>
-        <li>
-          The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval.
-          Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg.
-          If any functional issues are identified during the creative verification review, the scope of work will increase.
-        </li>
-        <li>
-          For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops.
-          If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.
-        </li>
+        <li>“Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set. (For example: JOBCODE123 static and JOBCODE123 animated =  2 sets; JOBCODE098 version A, and JOBCODE098 version B = two sets)</li>
+        <li>Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.</li>
+        <li>The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval. Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg. If any functional issues are identified during the creative verification review, the scope of work will increase.</li>
+        <li>For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops. If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.</li>
       </ol>
     </div>
   </div>
@@ -176,57 +165,58 @@
       "Number of vendors involved in this trafficking request"
     ];
 
+    // Render form
     const form = document.getElementById("form");
     questions.forEach((q, i) => {
       const id = "q" + (i + 1);
       const group = document.createElement("div");
       group.className = "form-group";
-      group.innerHTML =
-        `<label for="${id}">${q}</label>
-         <input id="${id}" type="number" min="0" value="0" />`;
+      group.innerHTML = `<label for="${id}">${q}</label><input id="${id}" type="number" min="0" value="0" />`;
       form.appendChild(group);
     });
 
     function computeScoreAndComplexity() {
+      const animated = parseInt(document.getElementById("q1").value) || 0;
+      const statics  = parseInt(document.getElementById("q2").value) || 0;
+      const video    = parseInt(document.getElementById("q3").value) || 0;
+      const audio    = parseInt(document.getElementById("q4").value) || 0;
+      const dco      = parseInt(document.getElementById("q5").value) || 0;
 
-      const animated = +q1.value || 0;
-      const statics  = +q2.value || 0;
-      const video    = +q3.value || 0;
-      const audio    = +q4.value || 0;
-      const dco      = +q5.value || 0;
+      const newPlacements = parseInt(document.getElementById("q6").value) || 0;
+      const oneByOne      = parseInt(document.getElementById("q7").value) || 0;
+      const existingPl    = parseInt(document.getElementById("q8").value) || 0;
 
-      const newPlacements = +q6.value || 0;
-      const oneByOne      = +q7.value || 0;
-      const existingPl    = +q8.value || 0;
+      const newRot   = parseInt(document.getElementById("q9").value) || 0;
+      const existRot = parseInt(document.getElementById("q10").value) || 0;
 
-      const newRot   = +q9.value || 0;
-      const existRot = +q10.value || 0;
-
-      const urlUpdates = +q11.value || 0;
-      const vendors    = +q12.value || 0;
+      const urlUpdates = parseInt(document.getElementById("q11").value) || 0;
+      const vendors    = parseInt(document.getElementById("q12").value) || 0;
 
       let score = 0;
 
-      // Creative weights
+      // Base creative weights
       score += 1.5  * animated;
       score += 0.5  * statics;
       score += 0.75 * video;
       score += 0.5  * audio;
       score += 2.0  * dco;
 
-      // Placement bucket
+      // Placement bucket (Total placements = new + 1x1 + existing)
+      // 0–100: +0 | 101–200: +1 | 201–300: +2 | 301+: +3
       const placementsTotal = newPlacements + oneByOne + existingPl;
-      if (placementsTotal <= 100) score += 2;
-      else if (placementsTotal <= 200) score += 3;
-      else if (placementsTotal <= 300) score += 4;
-      else score += 5;
+      if (placementsTotal <= 100) score += 0;
+      else if (placementsTotal <= 200) score += 1;
+      else if (placementsTotal <= 300) score += 2;
+      else score += 3;
 
-      // 1x1 friction
-      if (oneByOne <= 10) score += 3;
-      else if (oneByOne <= 30) score += 6;
-      else score += 9;
+      // 1x1 friction (separate from placements bucket)
+      // 0: +0 | 1–6: +1 | 7–15: +5 | 16+: +10
+      if (oneByOne === 0) score += 0;
+      else if (oneByOne <= 6) score += 1;
+      else if (oneByOne <= 15) score += 5;
+      else score += 10;
 
-      // Rotations
+      // Rotations bucket
       const totalRot = newRot + existRot;
       if (totalRot === 0) score += 0;
       else if (totalRot <= 5) score += 6;
@@ -234,31 +224,53 @@
       else if (totalRot <= 11) score += 20;
       else score += 30;
 
+      // Existing rotations bonus
       if (existRot >= 6) score += 4;
 
+      // URL updates
       if (urlUpdates > 0) score += 1;
 
-      score += 0.75 * vendors;
+      // Vendors (graduated scaling)
+      // 1 vendor is expected: +0
+      // 2–3 vendors: +0.5 per additional vendor
+      // 4–6 vendors: +0.75 per vendor beyond 3 (adds meaningful coordination load)
+      // 7+ vendors: +1 per vendor beyond 6 (high coordination risk)
+      if (vendors <= 1) score += 0;
+      else if (vendors <= 3) score += 0.5 * (vendors - 1);
+      else if (vendors <= 6) score += 2 + (vendors - 3) * 0.75;
+      else score += 4 + (vendors - 6) * 1;
 
+      // Multi-format bonus (static/animated/video/audio/DCO)
       const formatCount =
-        (statics > 0) +
-        (animated > 0) +
-        (video > 0) +
-        (audio > 0) +
-        (dco > 0);
+        (statics > 0 ? 1 : 0) +
+        (animated > 0 ? 1 : 0) +
+        (video > 0 ? 1 : 0) +
+        (audio > 0 ? 1 : 0) +
+        (dco > 0 ? 1 : 0);
 
       if (formatCount === 3) score += 2;
       else if (formatCount >= 4) score += 4;
 
-      // Option A mapping
+      // Score-based complexity mapping (Option A)
+      // Small: 0–15 | Medium: 16–24 | Large: 25–29 | Complex: 30+
       let complexity =
         score >= 30 ? "Complex" :
         score >= 25 ? "Large" :
         score >= 16 ? "Medium" : "Small";
 
-      // Floors
+      // Complex gating:
+      // Only rotations/DCO triggers are allowed to produce "Complex".
+      // Vendors (and other amplifiers) can raise score, but if there is no Complex trigger,
+      // the highest possible output is "Large".
+      const complexTriggered = (dco >= 4) || (newRot >= 12) || (totalRot >= 14);
+      if (!complexTriggered && complexity === "Complex") complexity = "Large";
+
+      // Floors / triggers
+      // DCO floors
       if (dco >= 1 && complexity !== "Complex") complexity = "Large";
       if (dco >= 4) complexity = "Complex";
+
+      // Rotation floors
       if (newRot >= 12 || totalRot >= 14) complexity = "Complex";
 
       return { score, complexity };
@@ -266,7 +278,7 @@
 
     function calculate() {
       const r = computeScoreAndComplexity();
-      result.innerText =
+      document.getElementById("result").innerText =
         `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.complexity}`;
     }
 
@@ -280,16 +292,30 @@
       let y = 30;
 
       questions.forEach((q, i) => {
-        const val = +document.getElementById("q" + (i + 1)).value || 0;
-        const lines = doc.splitTextToSize(`${i + 1}. ${q}: ${val}`, 180);
+        const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
+        doc.setFontSize(11);
+
+        const line = `${i + 1}. ${q}: ${val}`;
+        const lines = doc.splitTextToSize(line, 180);
         doc.text(lines, 10, y);
-        y += lines.length * 7;
-        if (y > 265) { doc.addPage(); y = 20; }
+        y += (lines.length * 7);
+
+        if (y > 265) {
+          doc.addPage();
+          y = 20;
+        }
       });
 
       const r = computeScoreAndComplexity();
-      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 10);
-      doc.text(`Complexity Level: ${r.complexity}`, 10, y + 20);
+
+      if (y > 245) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.setFontSize(12);
+      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 6);
+      doc.text(`Complexity Level: ${r.complexity}`, 10, y + 16);
 
       doc.save("requestiq-trafficking-summary.pdf");
     }
