@@ -108,10 +108,11 @@
 
     #result {
       text-align: center;
-      font-size: 16px;
-      font-weight: 500;
+      font-size: 18px;
+      font-weight: 600;
       margin-top: 20px;
       white-space: pre-line;
+      color: #0b2545;
     }
 
     #footer-note {
@@ -142,7 +143,7 @@
 
       <div id="form"></div>
 
-      <button onclick="calculate()">Calculate Effort</button>
+      <button onclick="calculate()">Calculate Complexity</button>
       <button onclick="downloadPDF()">Download PDF</button>
       <p id="result"></p>
 
@@ -179,7 +180,7 @@
   </div>
 
   <script>
-    // Restored full wording for Q9–Q12
+    // Full question wording restored
     const questions = [
       "New animated banner sets",
       "New static banner sets",
@@ -195,7 +196,7 @@
       "Number of vendors involved in this trafficking request"
     ];
 
-    // Render numeric form inputs
+    // Render inputs
     const form = document.getElementById("form");
     questions.forEach((q, i) => {
       const id = "q" + (i + 1);
@@ -206,43 +207,26 @@
     });
 
     // Tiered animated scoring per team preference
-    // <5: smaller lift
-    // 5–8: more time consuming
-    // 9–12: even more time consuming
-    // 13+: defaults to Complex
     function animatedPoints(n) {
       if (n <= 0) return 0;
-
-      // Marginal points per tier:
-      // 0–4: +1 each
-      // 5–8: +2 each (beyond 4)
-      // 9–12: +3 each (beyond 8)
-      // 13+: +4 each (beyond 12)
-      let pts = 0;
-
       const t1 = Math.min(n, 4);
-      pts += t1 * 1;
-
+      let pts = t1 * 1;
       if (n > 4) {
         const t2 = Math.min(n, 8) - 4;
         pts += t2 * 2;
       }
-
       if (n > 8) {
         const t3 = Math.min(n, 12) - 8;
         pts += t3 * 3;
       }
-
       if (n > 12) {
         const t4 = n - 12;
         pts += t4 * 4;
       }
-
       return pts;
     }
 
-    // Takeda Oncology UTM points based on duplication count:
-    // duplications = newPlacements * totalCreativeSets
+    // Takeda UTM points
     function getTakedaUtmPoints(isTakeda, duplications) {
       if (!isTakeda) return 0;
       if (duplications <= 0) return 0;
@@ -273,23 +257,21 @@
 
       let score = 0;
 
-      // Creative weights (animated is tiered)
+      // Creative weights
       score += animatedPoints(animated);
       score += 0.5  * statics;
       score += 0.75 * video;
       score += 0.5  * audio;
       score += 2.0  * dco;
 
-      // Placement bucket (Total placements = new + 1x1 + existing)
-      // 0–100: +0 | 101–200: +1 | 201–300: +2 | 301+: +3
+      // Placements bucket
       const placementsTotal = newPlacements + oneByOne + existingPl;
       if (placementsTotal <= 100) score += 0;
       else if (placementsTotal <= 200) score += 1;
       else if (placementsTotal <= 300) score += 2;
       else score += 3;
 
-      // 1x1 friction (separate from placements bucket)
-      // 0: +0 | 1–6: +1 | 7–15: +5 | 16+: +10
+      // 1x1 friction
       if (oneByOne === 0) score += 0;
       else if (oneByOne <= 6) score += 1;
       else if (oneByOne <= 15) score += 5;
@@ -303,16 +285,14 @@
       else if (totalRot <= 11) score += 20;
       else score += 30;
 
-      // Existing rotations bonus
       if (existRot >= 6) score += 4;
 
-      // URL updates
       if (urlUpdates > 0) score += 1;
 
-      // Vendors (simple linear amplifier: +0.5 per vendor beyond the first)
+      // Vendors
       if (vendors > 1) score += 0.5 * (vendors - 1);
 
-      // Multi-format bonus (static/animated/video/audio/DCO)
+      // Multi-format bonus
       const formatCount =
         (statics > 0 ? 1 : 0) +
         (animated > 0 ? 1 : 0) +
@@ -323,21 +303,19 @@
       if (formatCount === 3) score += 2;
       else if (formatCount >= 4) score += 4;
 
-      // Takeda Oncology UTM points
+      // Takeda UTM points
       const totalCreativeSets = animated + statics + video + audio + dco;
       const utmDuplications = newPlacements * totalCreativeSets;
       const utmPoints = getTakedaUtmPoints(isTakeda, utmDuplications);
       score += utmPoints;
 
-      // Complexity mapping (Option A)
-      // Small: 0–15 | Medium: 16–24 | Large: 25–29 | Complex: 30+
+      // Complexity mapping
       let complexity =
         score >= 30 ? "Complex" :
         score >= 25 ? "Large" :
         score >= 16 ? "Medium" : "Small";
 
-      // Complex gating:
-      // Only rotations/DCO should create Complex, BUT animated 13+ defaults to Complex (team preference).
+      // Complex gating: rotations/DCO or animated>=13
       const complexTriggered =
         (dco >= 4) ||
         (newRot >= 12) ||
@@ -346,33 +324,25 @@
 
       if (!complexTriggered && complexity === "Complex") complexity = "Large";
 
-      // Floors / triggers
       if (dco >= 1 && complexity !== "Complex") complexity = "Large";
       if (dco >= 4) complexity = "Complex";
       if (newRot >= 12 || totalRot >= 14) complexity = "Complex";
 
-      // Animated floors per team preference:
-      // 5–8 => minimum Medium
-      // 9–12 => minimum Large
-      // 13+ => Complex
+      // Animated floors per team preference
       if (animated >= 13) complexity = "Complex";
       else if (animated >= 9 && (complexity === "Small" || complexity === "Medium")) complexity = "Large";
       else if (animated >= 5 && complexity === "Small") complexity = "Medium";
 
-      return { score, complexity, isTakeda, utmDuplications, utmPoints };
+      return { score, complexity };
     }
 
+    // Show only complexity in the UI
     function calculate() {
       const r = computeScoreAndComplexity();
-      const takedaLabel = r.isTakeda ? "Yes" : "No";
-      const takedaLine = r.isTakeda
-        ? `\nTakeda Oncology: ${takedaLabel}\nUTM Duplications: ${r.utmDuplications}\nUTM Points: +${r.utmPoints}`
-        : `\nTakeda Oncology: ${takedaLabel}`;
-
-      document.getElementById("result").innerText =
-        `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.complexity}${takedaLine}`;
+      document.getElementById("result").innerText = `Complexity Level: ${r.complexity}`;
     }
 
+    // PDF will include only complexity level
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -380,37 +350,12 @@
       doc.setFontSize(14);
       doc.text("RequestIQ - Trafficking Summary", 10, 20);
 
-      let y = 30;
-
-      const takedaYes = document.getElementById("takedaOncology").value === "yes";
-      doc.setFontSize(11);
-      doc.text(`Takeda Oncology: ${takedaYes ? "Yes" : "No"}`, 10, y);
-      y += 8;
-
-      questions.forEach((q, i) => {
-        const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
-        const line = `${i + 1}. ${q}: ${val}`;
-        const lines = doc.splitTextToSize(line, 180);
-        doc.text(lines, 10, y);
-        y += (lines.length * 7);
-        if (y > 265) { doc.addPage(); y = 20; }
-      });
-
       const r = computeScoreAndComplexity();
 
-      if (y > 245) { doc.addPage(); y = 20; }
-
       doc.setFontSize(12);
-      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 6);
-      doc.text(`Complexity Level: ${r.complexity}`, 10, y + 16);
+      doc.text(`Complexity Level: ${r.complexity}`, 10, 40);
 
-      doc.setFontSize(10);
-      if (r.isTakeda) {
-        doc.text(`UTM Duplications: ${r.utmDuplications}`, 10, y + 26);
-        doc.text(`UTM Points: +${r.utmPoints}`, 10, y + 34);
-      }
-
-      doc.save("requestiq-trafficking-summary.pdf");
+      doc.save("requestiq-trafficking-complexity.pdf");
     }
   </script>
 </body>
