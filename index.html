@@ -77,7 +77,7 @@
       line-height: 1.25;
     }
     .form-group input, .form-group select {
-      width: 120px;
+      width: 140px;
       padding: 8px;
       font-size: 14px;
       border: 1px solid #ccd6e0;
@@ -131,7 +131,7 @@
     <div class="container">
       <div class="header">RequestIQ - Trafficking</div>
 
-      <!-- UPDATED: Takeda Oncology Yes/No -->
+      <!-- Takeda Oncology Yes/No -->
       <div class="form-group">
         <label for="takedaOncology">Takeda Oncology</label>
         <select id="takedaOncology">
@@ -154,23 +154,32 @@
       </div>
     </div>
 
+    <!-- Restored "Please Note" -->
     <div class="sidebar">
       <h3>Please Note:</h3>
       <ol>
         <li>
           “Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set.
+          (For example: JOBCODE123 static and JOBCODE123 animated = 2 sets; JOBCODE098 version A, and JOBCODE098 version B = two sets)
         </li>
         <li>
-          Only one static backup set is permitted per campaign.
+          Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.
         </li>
         <li>
+          The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval.
           Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg.
+          If any functional issues are identified during the creative verification review, the scope of work will increase.
+        </li>
+        <li>
+          For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops.
+          If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.
         </li>
       </ol>
     </div>
   </div>
 
   <script>
+    // Restored full wording for Q9–Q12
     const questions = [
       "New animated banner sets",
       "New static banner sets",
@@ -180,32 +189,63 @@
       "New placements",
       "New 1x1 site-served placements",
       "Number of existing placements",
-      "New rotation sets",
-      "Existing rotation sets updated",
-      "Updating URLs of existing assets",
-      "Number of vendors involved"
+      "Using existing and/ or new assets with new rotations? If yes, how many sets of new rotations?",
+      "Using existing assets and existing rotations? If yes, how many sets of existing rotations?",
+      "Updating URLs of existing assets? If yes, how many sets of assets?",
+      "Number of vendors involved in this trafficking request"
     ];
 
+    // Render numeric form inputs
     const form = document.getElementById("form");
     questions.forEach((q, i) => {
       const id = "q" + (i + 1);
       const group = document.createElement("div");
       group.className = "form-group";
-      group.innerHTML =
-        `<label for="${id}">${q}</label>
-         <input id="${id}" type="number" min="0" value="0" />`;
+      group.innerHTML = `<label for="${id}">${q}</label><input id="${id}" type="number" min="0" value="0" />`;
       form.appendChild(group);
     });
 
+    // Tiered animated scoring per team preference
+    // <5: smaller lift
+    // 5–8: more time consuming
+    // 9–12: even more time consuming
+    // 13+: defaults to Complex
     function animatedPoints(n) {
-      if (n <= 4) return n * 1;
-      if (n <= 8) return 4 + (n - 4) * 2;
-      if (n <= 12) return 12 + (n - 8) * 3;
-      return 24 + (n - 12) * 4;
+      if (n <= 0) return 0;
+
+      // Marginal points per tier:
+      // 0–4: +1 each
+      // 5–8: +2 each (beyond 4)
+      // 9–12: +3 each (beyond 8)
+      // 13+: +4 each (beyond 12)
+      let pts = 0;
+
+      const t1 = Math.min(n, 4);
+      pts += t1 * 1;
+
+      if (n > 4) {
+        const t2 = Math.min(n, 8) - 4;
+        pts += t2 * 2;
+      }
+
+      if (n > 8) {
+        const t3 = Math.min(n, 12) - 8;
+        pts += t3 * 3;
+      }
+
+      if (n > 12) {
+        const t4 = n - 12;
+        pts += t4 * 4;
+      }
+
+      return pts;
     }
 
+    // Takeda Oncology UTM points based on duplication count:
+    // duplications = newPlacements * totalCreativeSets
     function getTakedaUtmPoints(isTakeda, duplications) {
       if (!isTakeda) return 0;
+      if (duplications <= 0) return 0;
       if (duplications <= 5) return 2;
       if (duplications <= 15) return 5;
       if (duplications <= 30) return 8;
@@ -213,77 +253,163 @@
     }
 
     function computeScoreAndComplexity() {
-      const animated = +q1.value || 0;
-      const statics = +q2.value || 0;
-      const video = +q3.value || 0;
-      const audio = +q4.value || 0;
-      const dco = +q5.value || 0;
-      const newPlacements = +q6.value || 0;
-      const oneByOne = +q7.value || 0;
-      const existingPl = +q8.value || 0;
-      const newRot = +q9.value || 0;
-      const existRot = +q10.value || 0;
-      const urlUpdates = +q11.value || 0;
-      const vendors = +q12.value || 0;
+      const animated = parseInt(document.getElementById("q1").value) || 0;
+      const statics  = parseInt(document.getElementById("q2").value) || 0;
+      const video    = parseInt(document.getElementById("q3").value) || 0;
+      const audio    = parseInt(document.getElementById("q4").value) || 0;
+      const dco      = parseInt(document.getElementById("q5").value) || 0;
+
+      const newPlacements = parseInt(document.getElementById("q6").value) || 0;
+      const oneByOne      = parseInt(document.getElementById("q7").value) || 0;
+      const existingPl    = parseInt(document.getElementById("q8").value) || 0;
+
+      const newRot   = parseInt(document.getElementById("q9").value) || 0;
+      const existRot = parseInt(document.getElementById("q10").value) || 0;
+
+      const urlUpdates = parseInt(document.getElementById("q11").value) || 0;
+      const vendors    = parseInt(document.getElementById("q12").value) || 0;
+
       const isTakeda = document.getElementById("takedaOncology").value === "yes";
 
       let score = 0;
 
+      // Creative weights (animated is tiered)
       score += animatedPoints(animated);
-      score += 0.5 * statics;
+      score += 0.5  * statics;
       score += 0.75 * video;
-      score += 0.5 * audio;
-      score += 2.0 * dco;
+      score += 0.5  * audio;
+      score += 2.0  * dco;
 
+      // Placement bucket (Total placements = new + 1x1 + existing)
+      // 0–100: +0 | 101–200: +1 | 201–300: +2 | 301+: +3
       const placementsTotal = newPlacements + oneByOne + existingPl;
-      if (placementsTotal > 100 && placementsTotal <= 200) score += 1;
+      if (placementsTotal <= 100) score += 0;
+      else if (placementsTotal <= 200) score += 1;
       else if (placementsTotal <= 300) score += 2;
-      else if (placementsTotal > 300) score += 3;
+      else score += 3;
 
-      if (oneByOne > 0 && oneByOne <= 6) score += 1;
+      // 1x1 friction (separate from placements bucket)
+      // 0: +0 | 1–6: +1 | 7–15: +5 | 16+: +10
+      if (oneByOne === 0) score += 0;
+      else if (oneByOne <= 6) score += 1;
       else if (oneByOne <= 15) score += 5;
-      else if (oneByOne > 15) score += 10;
+      else score += 10;
 
+      // Rotations bucket
       const totalRot = newRot + existRot;
-      if (totalRot <= 5) score += 6;
+      if (totalRot === 0) score += 0;
+      else if (totalRot <= 5) score += 6;
       else if (totalRot <= 9) score += 12;
       else if (totalRot <= 11) score += 20;
-      else if (totalRot > 11) score += 30;
+      else score += 30;
 
+      // Existing rotations bonus
       if (existRot >= 6) score += 4;
+
+      // URL updates
       if (urlUpdates > 0) score += 1;
 
+      // Vendors (simple linear amplifier: +0.5 per vendor beyond the first)
       if (vendors > 1) score += 0.5 * (vendors - 1);
 
+      // Multi-format bonus (static/animated/video/audio/DCO)
+      const formatCount =
+        (statics > 0 ? 1 : 0) +
+        (animated > 0 ? 1 : 0) +
+        (video > 0 ? 1 : 0) +
+        (audio > 0 ? 1 : 0) +
+        (dco > 0 ? 1 : 0);
+
+      if (formatCount === 3) score += 2;
+      else if (formatCount >= 4) score += 4;
+
+      // Takeda Oncology UTM points
       const totalCreativeSets = animated + statics + video + audio + dco;
       const utmDuplications = newPlacements * totalCreativeSets;
-      score += getTakedaUtmPoints(isTakeda, utmDuplications);
+      const utmPoints = getTakedaUtmPoints(isTakeda, utmDuplications);
+      score += utmPoints;
 
+      // Complexity mapping (Option A)
+      // Small: 0–15 | Medium: 16–24 | Large: 25–29 | Complex: 30+
       let complexity =
         score >= 30 ? "Complex" :
         score >= 25 ? "Large" :
         score >= 16 ? "Medium" : "Small";
 
+      // Complex gating:
+      // Only rotations/DCO should create Complex, BUT animated 13+ defaults to Complex (team preference).
+      const complexTriggered =
+        (dco >= 4) ||
+        (newRot >= 12) ||
+        (totalRot >= 14) ||
+        (animated >= 13);
+
+      if (!complexTriggered && complexity === "Complex") complexity = "Large";
+
+      // Floors / triggers
+      if (dco >= 1 && complexity !== "Complex") complexity = "Large";
+      if (dco >= 4) complexity = "Complex";
+      if (newRot >= 12 || totalRot >= 14) complexity = "Complex";
+
+      // Animated floors per team preference:
+      // 5–8 => minimum Medium
+      // 9–12 => minimum Large
+      // 13+ => Complex
       if (animated >= 13) complexity = "Complex";
-      else if (animated >= 9 && complexity !== "Complex") complexity = "Large";
+      else if (animated >= 9 && (complexity === "Small" || complexity === "Medium")) complexity = "Large";
       else if (animated >= 5 && complexity === "Small") complexity = "Medium";
 
-      if (dco >= 4 || newRot >= 12 || totalRot >= 14) complexity = "Complex";
-
-      return { score, complexity };
+      return { score, complexity, isTakeda, utmDuplications, utmPoints };
     }
 
     function calculate() {
       const r = computeScoreAndComplexity();
-      result.innerText =
-        `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.complexity}`;
+      const takedaLabel = r.isTakeda ? "Yes" : "No";
+      const takedaLine = r.isTakeda
+        ? `\nTakeda Oncology: ${takedaLabel}\nUTM Duplications: ${r.utmDuplications}\nUTM Points: +${r.utmPoints}`
+        : `\nTakeda Oncology: ${takedaLabel}`;
+
+      document.getElementById("result").innerText =
+        `Effort Score: ${r.score.toFixed(2)}\nComplexity Level: ${r.complexity}${takedaLine}`;
     }
 
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
+
       doc.setFontSize(14);
       doc.text("RequestIQ - Trafficking Summary", 10, 20);
+
+      let y = 30;
+
+      const takedaYes = document.getElementById("takedaOncology").value === "yes";
+      doc.setFontSize(11);
+      doc.text(`Takeda Oncology: ${takedaYes ? "Yes" : "No"}`, 10, y);
+      y += 8;
+
+      questions.forEach((q, i) => {
+        const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
+        const line = `${i + 1}. ${q}: ${val}`;
+        const lines = doc.splitTextToSize(line, 180);
+        doc.text(lines, 10, y);
+        y += (lines.length * 7);
+        if (y > 265) { doc.addPage(); y = 20; }
+      });
+
+      const r = computeScoreAndComplexity();
+
+      if (y > 245) { doc.addPage(); y = 20; }
+
+      doc.setFontSize(12);
+      doc.text(`Effort Score: ${r.score.toFixed(2)}`, 10, y + 6);
+      doc.text(`Complexity Level: ${r.complexity}`, 10, y + 16);
+
+      doc.setFontSize(10);
+      if (r.isTakeda) {
+        doc.text(`UTM Duplications: ${r.utmDuplications}`, 10, y + 26);
+        doc.text(`UTM Points: +${r.utmPoints}`, 10, y + 34);
+      }
+
       doc.save("requestiq-trafficking-summary.pdf");
     }
   </script>
