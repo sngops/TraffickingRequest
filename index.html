@@ -1,259 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>RequestIQ - Trafficking</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RequestIQ - Trafficking</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
-body {
-  font-family: 'Poppins', sans-serif;
-  background: #f0f4f8;
-  margin: 0;
-  padding: 40px 20px;
-  display: flex;
-  justify-content: center;
-}
-.wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  max-width: 1200px;
-  width: 100%;
-}
-.container {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 36px;
-  flex: 1 1 600px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
-.sidebar {
-  flex: 1 1 300px;
-  background: #ffffff;
-  padding: 20px 18px;
-  border-radius: 14px;
-  border: 1px solid #e0e6ed;
-  font-size: 13.5px;
-  color: #444;
-  line-height: 1.5;
-}
-.sidebar h3 {
-  margin-top: 0;
-  font-size: 15px;
-  color: #003366;
-}
-.sidebar ol {
-  padding-left: 18px;
-}
-.sidebar ol li {
-  margin-bottom: 10px;
-}
-.header {
-  text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  color: #003366;
-  margin-bottom: 24px;
-}
-.form-group {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f9fbfc;
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 14px;
-  border: 1px solid #dde3ea;
-  gap: 12px;
-}
-.form-group label {
-  flex: 1;
-  font-size: 15px;
-  color: #333;
-}
-.form-group input, .form-group select {
-  width: 120px;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccd6e0;
-}
-.form-group input {
-  width: 64px;
-  text-align: center;
-}
-button {
-  width: 100%;
-  background-color: #0057FF;
-  color: white;
-  font-size: 16px;
-  padding: 14px 0;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 16px;
-}
-button:hover {
-  background-color: #0046cc;
-}
-#result {
-  text-align: center;
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 20px;
-}
-</style>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      max-width: 1200px;
+      width: 100%;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 36px;
+      flex: 1 1 600px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+    .sidebar {
+      flex: 1 1 300px;
+      background: #ffffff;
+      padding: 20px 18px;
+      border-radius: 14px;
+      border: 1px solid #e0e6ed;
+      font-size: 13.5px;
+      color: #444;
+      line-height: 1.5;
+    }
+    .sidebar h3 {
+      margin-top: 0;
+      font-size: 15px;
+      color: #003366;
+      font-weight: 600;
+    }
+    .sidebar ol {
+      padding-left: 18px;
+      margin: 0;
+    }
+    .sidebar ol li {
+      margin-bottom: 10px;
+    }
+    .header {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9fbfc;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      border: 1px solid #dde3ea;
+      gap: 12px;
+    }
+    .form-group label {
+      flex: 1;
+      font-size: 15px;
+      color: #333;
+      line-height: 1.25;
+    }
+    .form-group input, .form-group select {
+      width: 140px;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccd6e0;
+      border-radius: 6px;
+      background-color: #fff;
+    }
+    .form-group input {
+      width: 64px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      background-color: #0057FF;
+      color: white;
+      font-size: 16px;
+      padding: 14px 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    button:hover { background-color: #0046cc; }
+
+    #result {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 20px;
+      white-space: pre-line;
+      color: #0b2545;
+    }
+
+    #footer-note {
+      margin-top: 26px;
+      text-align: center;
+      font-size: 14px;
+    }
+    #footer-note a {
+      color: #0057FF;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 
 <body>
-<div class="wrapper">
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">RequestIQ - Trafficking</div>
 
-<div class="container">
-<div class="header">RequestIQ - Trafficking</div>
+      <!-- Takeda Oncology Yes/No -->
+      <div class="form-group">
+        <label for="takedaOncology">Takeda Oncology</label>
+        <select id="takedaOncology">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
 
-<div class="form-group">
-  <label for="takedaOncology">Takeda Oncology</label>
-  <select id="takedaOncology">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-  </select>
-</div>
+      <div id="form"></div>
 
-<div id="form"></div>
+      <button onclick="calculate()">Calculate Complexity</button>
+      <button onclick="downloadPDF()">Download PDF</button>
+      <p id="result"></p>
 
-<button onclick="calculate()">Calculate Complexity</button>
-<button onclick="downloadPDF()">Download PDF</button>
+      <div id="footer-note">
+        ✅ Ready to proceed?
+        <a href="https://genome.klick.com/task/template/create-template-form.html?task=2249335" target="_blank">
+          Initiate trafficking task here
+        </a>.
+      </div>
+    </div>
 
-<p id="result"></p>
-</div>
+    <!-- LOCKED SIDEBAR (do not modify unless Shirley requests wording changes) -->
+    <div class="sidebar" id="locked-please-note">
+      <h3>Please Note:</h3>
+      <ol>
+        <li>
+          “Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set.
+          (For example: JOBCODE123 static and JOBCODE123 animated = 2 sets; JOBCODE098 version A, and JOBCODE098 version B = two sets)
+        </li>
+        <li>
+          Only one static backup set is permitted per campaign. However, you can use as many static banner sets in the live rotation.
+        </li>
+        <li>
+          The outlined scope assumes that all assets have already undergone QA and have received Sci-Reg approval.
+          Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg.
+          If any functional issues are identified during the creative verification review, the scope of work will increase.
+        </li>
+        <li>
+          For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops.
+          If the placement compatibility type is selected incorrectly in Prisma, additional scope and effort may be needed to resolve the issue.
+        </li>
+      </ol>
+    </div>
+  </div>
 
-<div class="sidebar">
-<h3>Please Note:</h3>
-<ol>
-<li>“Sets” refer to distinct versions tied to a job code. If you’re running banners under the same job code but with two different creative versions, each version will be treated as a separate set.</li>
-<li>Only one static backup set is permitted per campaign.</li>
-<li>Trafficking review will be limited to a compatibility check via Campaign Manager 360 environment for Ad Ops and final confirmation from Sci-Reg.</li>
-<li>For 1x1 placements, please confirm with the vendor what deliverables are required from Ad Ops.</li>
-</ol>
-</div>
+  <script>
+    /******************************************************************
+     * LOCKED LAYOUT NOTICE
+     * - Do not change HTML layout (header/container/sidebar/questions UI)
+     * - Only update scoring logic inside computeScoreAndComplexity()
+     ******************************************************************/
 
-</div>
+    const questions = [
+      "New animated banner sets",
+      "New static banner sets",
+      "New video sets",
+      "New audio sets",
+      "New DCO banner sets",
+      "New placements",
+      "New 1x1 site-served placements",
+      "Number of existing placements",
+      "Using existing and/ or new assets with new rotations? If yes, how many sets of new rotations?",
+      "Using existing assets and existing rotations? If yes, how many sets of existing rotations?",
+      "Updating URLs of existing assets? If yes, how many sets of assets?",
+      "Number of vendors involved in this trafficking request"
+    ];
 
-<script>
-const questions = [
-"New animated banner sets",
-"New static banner sets",
-"New video sets",
-"New audio sets",
-"New DCO banner sets",
-"New placements",
-"New 1x1 site-served placements",
-"Number of existing placements",
-"Using existing and/ or new assets with new rotations? If yes, how many sets of new rotations?",
-"Using existing assets and existing rotations? If yes, how many sets of existing rotations?",
-"Updating URLs of existing assets? If yes, how many sets of assets?",
-"Number of vendors involved in this trafficking request"
-];
+    // Render numeric inputs
+    const form = document.getElementById("form");
+    questions.forEach((q, i) => {
+      const id = "q" + (i + 1);
+      const group = document.createElement("div");
+      group.className = "form-group";
+      group.innerHTML = `<label for="${id}">${q}</label><input id="${id}" type="number" min="0" value="0" />`;
+      form.appendChild(group);
+    });
 
-const form = document.getElementById("form");
-questions.forEach((q, i) => {
-  const id = "q" + (i + 1);
-  const group = document.createElement("div");
-  group.className = "form-group";
-  group.innerHTML = `<label>${q}</label><input id="${id}" type="number" min="0" value="0"/>`;
-  form.appendChild(group);
-});
+    // Tiered animated scoring per team preference
+    function animatedPoints(n) {
+      if (n <= 0) return 0;
 
-function animatedPoints(n){
-  if(n<=4) return n*1;
-  if(n<=8) return 4 + (n-4)*2;
-  if(n<=12) return 12 + (n-8)*3;
-  return 24 + (n-12)*4;
-}
+      // 0–4: +1 each
+      // 5–8: +2 each (beyond 4)
+      // 9–12: +3 each (beyond 8)
+      // 13+: +4 each (beyond 12)
+      let pts = 0;
 
-function getTakedaPoints(isTakeda, creatives){
-  if(!isTakeda) return 0;
-  const duplications = creatives * 5;
-  if(duplications<=5) return 2;
-  if(duplications<=15) return 5;
-  if(duplications<=30) return 8;
-  return 12;
-}
+      const t1 = Math.min(n, 4);
+      pts += t1 * 1;
 
-function computeScore(){
-  const animated = +q1.value || 0;
-  const statics = +q2.value || 0;
-  const video = +q3.value || 0;
-  const audio = +q4.value || 0;
-  const dco = +q5.value || 0;
-  const newPlacements = +q6.value || 0;
-  const oneByOne = +q7.value || 0;
-  const existingPl = +q8.value || 0;
-  const newRot = +q9.value || 0;
-  const existRot = +q10.value || 0;
-  const urlUpdates = +q11.value || 0;
-  const vendors = +q12.value || 0;
-  const isTakeda = document.getElementById("takedaOncology").value==="yes";
+      if (n > 4) {
+        const t2 = Math.min(n, 8) - 4;
+        pts += t2 * 2;
+      }
 
-  let score = 0;
+      if (n > 8) {
+        const t3 = Math.min(n, 12) - 8;
+        pts += t3 * 3;
+      }
 
-  score += animatedPoints(animated);
-  score += 0.5*statics;
-  score += 0.75*video;
-  score += 0.5*audio;
-  score += 2*dco;
+      if (n > 12) {
+        const t4 = n - 12;
+        pts += t4 * 4;
+      }
 
-  const placementsTotal = newPlacements+oneByOne+existingPl;
-  if(placementsTotal>100 && placementsTotal<=200) score+=1;
-  else if(placementsTotal<=300 && placementsTotal>200) score+=2;
-  else if(placementsTotal>300) score+=3;
+      return pts;
+    }
 
-  if(oneByOne>0 && oneByOne<=6) score+=1;
-  else if(oneByOne<=15 && oneByOne>6) score+=5;
-  else if(oneByOne>15) score+=10;
+    // Takeda Oncology UTM points based on creative volume only
+    // duplications = totalCreativeSets * 5
+    function getTakedaUtmPoints(isTakeda, totalCreativeSets) {
+      if (!isTakeda) return 0;
 
-  const totalRot=newRot+existRot;
-  if(totalRot<=5 && totalRot>0) score+=6;
-  else if(totalRot<=9) score+=12;
-  else if(totalRot<=11) score+=20;
-  else if(totalRot>11) score+=30;
+      const duplications = totalCreativeSets * 5;
+      if (duplications <= 0) return 0;
+      if (duplications <= 5) return 2;
+      if (duplications <= 15) return 5;
+      if (duplications <= 30) return 8;
+      return 12;
+    }
 
-  if(existRot>=6) score+=4;
-  if(urlUpdates>0) score+=1;
-  if(vendors>1) score+=0.5*(vendors-1);
+    function computeScoreAndComplexity() {
+      const animated = parseInt(document.getElementById("q1").value) || 0;
+      const statics  = parseInt(document.getElementById("q2").value) || 0;
+      const video    = parseInt(document.getElementById("q3").value) || 0;
+      const audio    = parseInt(document.getElementById("q4").value) || 0;
+      const dco      = parseInt(document.getElementById("q5").value) || 0;
 
-  const totalCreatives=animated+statics+video+audio+dco;
-  score+=getTakedaPoints(isTakeda,totalCreatives);
+      const newPlacements = parseInt(document.getElementById("q6").value) || 0;
+      const oneByOne      = parseInt(document.getElementById("q7").value) || 0;
+      const existingPl    = parseInt(document.getElementById("q8").value) || 0;
 
-  let complexity=
-    score>=30?"Complex":
-    score>=25?"Large":
-    score>=16?"Medium":"Small";
+      const newRot   = parseInt(document.getElementById("q9").value) || 0;
+      const existRot = parseInt(document.getElementById("q10").value) || 0;
 
-  if(animated>=13) complexity="Complex";
-  else if(animated>=9 && complexity!=="Complex") complexity="Large";
-  else if(animated>=5 && complexity==="Small") complexity="Medium";
+      const urlUpdates = parseInt(document.getElementById("q11").value) || 0;
+      const vendors    = parseInt(document.getElementById("q12").value) || 0;
 
-  if(dco>=4 || newRot>=12 || totalRot>=14) complexity="Complex";
+      const isTakeda = document.getElementById("takedaOncology").value === "yes";
 
-  return complexity;
-}
+      let score = 0;
 
-function calculate(){
-  document.getElementById("result").innerText="Complexity Level: "+computeScore();
-}
+      // Creative weights
+      score += animatedPoints(animated);
+      score += 0.5  * statics;
+      score += 0.75 * video;
+      score += 0.5  * audio;
+      score += 2.0  * dco;
 
-async function downloadPDF(){
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF();
-  doc.setFontSize(14);
-  doc.text("RequestIQ - Trafficking Summary",10,20);
-  doc.text("Complexity Level: "+computeScore(),10,40);
-  doc.save("requestiq-trafficking-complexity.pdf");
-}
-</script>
+      // Placements bucket (Total placements = new + 1x1 + existing)
+      // 0–100: +0 | 101–200: +1 | 201–300: +2 | 301+: +3
+      const placementsTotal = newPlacements + oneByOne + existingPl;
+      if (placementsTotal <= 100) score += 0;
+      else if (placementsTotal <= 200) score += 1;
+      else if (placementsTotal <= 300) score += 2;
+      else score += 3;
 
+      // 1x1 friction (separate from placements bucket)
+      // 0: +0 | 1–6: +1 | 7–15: +5 | 16+: +10
+      if (oneByOne === 0) score += 0;
+      else if (oneByOne <= 6) score += 1;
+      else if (oneByOne <= 15) score += 5;
+      else score += 10;
+
+      // Rotations bucket (TOTALROT FIX INCLUDED)
+      // 0: +0 | 1–5: +6 | 6–9: +12 | 10–11: +20 | 12+: +30
+      const totalRot = newRot + existRot;
+      if (totalRot === 0) score += 0;
+      else if (totalRot <= 5) score += 6;
+      else if (totalRot <= 9) score += 12;
+      else if (totalRot <= 11) score += 20;
+      else score += 30;
+
+      // Existing rotations bonus
+      if (existRot >= 6) score += 4;
+
+      // URL updates
+      if (urlUpdates > 0) score += 1;
+
+      // Vendors (simple amplifier)
+      if (vendors > 1) score += 0.5 * (vendors - 1);
+
+      // Multi-format bonus (static/animated/video/audio/DCO)
+      const formatCount =
+        (statics > 0 ? 1 : 0) +
+        (animated > 0 ? 1 : 0) +
+        (video > 0 ? 1 : 0) +
+        (audio > 0 ? 1 : 0) +
+        (dco > 0 ? 1 : 0);
+
+      if (formatCount === 3) score += 2;
+      else if (formatCount >= 4) score += 4;
+
+      // Takeda Oncology UTM points (creative volume only)
+      const totalCreativeSets = animated + statics + video + audio + dco;
+      score += getTakedaUtmPoints(isTakeda, totalCreativeSets);
+
+      // Complexity mapping (Option A)
+      // Small: 0–15 | Medium: 16–24 | Large: 25–29 | Complex: 30+
+      let complexity =
+        score >= 30 ? "Complex" :
+        score >= 25 ? "Large" :
+        score >= 16 ? "Medium" : "Small";
+
+      // Complex gating:
+      // Complex allowed only if rotations/DCO trigger it OR animated >= 13 (team preference)
+      const complexTriggered =
+        (dco >= 4) ||
+        (newRot >= 12) ||
+        (totalRot >= 14) ||
+        (animated >= 13);
+
+      if (!complexTriggered && complexity === "Complex") complexity = "Large";
+
+      // Floors / triggers
+      if (dco >= 1 && complexity !== "Complex") complexity = "Large";
+      if (dco >= 4) complexity = "Complex";
+      if (newRot >= 12 || totalRot >= 14) complexity = "Complex";
+
+      // Animated floors per team preference:
+      // 5–8 => minimum Medium
+      // 9–12 => minimum Large
+      // 13+ => Complex
+      if (animated >= 13) complexity = "Complex";
+      else if (animated >= 9 && (complexity === "Small" || complexity === "Medium")) complexity = "Large";
+      else if (animated >= 5 && complexity === "Small") complexity = "Medium";
+
+      return { complexity };
+    }
+
+    // UI output: ONLY complexity level
+    function calculate() {
+      const r = computeScoreAndComplexity();
+      document.getElementById("result").innerText = `Complexity Level: ${r.complexity}`;
+    }
+
+    // PDF output: ONLY complexity level
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text("RequestIQ - Trafficking Summary", 10, 20);
+
+      const r = computeScoreAndComplexity();
+      doc.setFontSize(12);
+      doc.text(`Complexity Level: ${r.complexity}`, 10, 40);
+
+      doc.save("requestiq-trafficking-complexity.pdf");
+    }
+  </script>
 </body>
 </html>
