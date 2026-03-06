@@ -60,7 +60,6 @@
       color: #003366;
       margin-bottom: 24px;
     }
-
     .form-group {
       display: flex;
       justify-content: space-between;
@@ -78,7 +77,8 @@
       color: #333;
       line-height: 1.25;
     }
-    .form-group input, .form-group select {
+    .form-group input,
+    .form-group select {
       width: 140px;
       padding: 8px;
       font-size: 14px;
@@ -91,7 +91,6 @@
       text-align: center;
       font-size: 15px;
     }
-
     button {
       display: block;
       width: 100%;
@@ -104,8 +103,9 @@
       cursor: pointer;
       margin-top: 16px;
     }
-    button:hover { background-color: #0046cc; }
-
+    button:hover {
+      background-color: #0046cc;
+    }
     #result {
       text-align: center;
       font-size: 18px;
@@ -114,7 +114,6 @@
       white-space: pre-line;
       color: #0b2545;
     }
-
     #footer-note {
       margin-top: 26px;
       text-align: center;
@@ -132,7 +131,6 @@
     <div class="container">
       <div class="header">RequestIQ - Trafficking</div>
 
-      <!-- Takeda Oncology Yes/No -->
       <div class="form-group">
         <label for="takedaOncology">Takeda Oncology</label>
         <select id="takedaOncology">
@@ -155,7 +153,7 @@
       </div>
     </div>
 
-    <!-- LOCKED SIDEBAR (do not modify unless Shirley requests wording changes) -->
+    <!-- LOCKED SIDEBAR -->
     <div class="sidebar" id="locked-please-note">
       <h3>Please Note:</h3>
       <ol>
@@ -201,7 +199,6 @@
       "Number of vendors involved in this trafficking request"
     ];
 
-    // Render numeric inputs
     const form = document.getElementById("form");
     questions.forEach((q, i) => {
       const id = "q" + (i + 1);
@@ -211,14 +208,9 @@
       form.appendChild(group);
     });
 
-    // Tiered animated scoring per team preference
     function animatedPoints(n) {
       if (n <= 0) return 0;
 
-      // 0–4: +1 each
-      // 5–8: +2 each (beyond 4)
-      // 9–12: +3 each (beyond 8)
-      // 13+: +4 each (beyond 12)
       let pts = 0;
 
       const t1 = Math.min(n, 4);
@@ -242,8 +234,6 @@
       return pts;
     }
 
-    // Takeda Oncology UTM points based on creative volume only
-    // duplications = totalCreativeSets * 5
     function getTakedaUtmPoints(isTakeda, totalCreativeSets) {
       if (!isTakeda) return 0;
 
@@ -278,28 +268,25 @@
 
       // Creative weights
       score += animatedPoints(animated);
-      score += 0.5  * statics;
+      score += 0.5 * statics;
       score += 0.75 * video;
-      score += 0.5  * audio;
-      score += 2.0  * dco;
+      score += 0.5 * audio;
+      score += 2.0 * dco;
 
-      // Placements bucket (Total placements = new + 1x1 + existing)
-      // 0–100: +0 | 101–200: +1 | 201–300: +2 | 301+: +3
+      // Placements bucket
       const placementsTotal = newPlacements + oneByOne + existingPl;
       if (placementsTotal <= 100) score += 0;
       else if (placementsTotal <= 200) score += 1;
       else if (placementsTotal <= 300) score += 2;
       else score += 3;
 
-      // 1x1 friction (separate from placements bucket)
-      // 0: +0 | 1–6: +1 | 7–15: +5 | 16+: +10
+      // 1x1 friction
       if (oneByOne === 0) score += 0;
       else if (oneByOne <= 6) score += 1;
       else if (oneByOne <= 15) score += 5;
       else score += 10;
 
-      // Rotations bucket (TOTALROT FIX INCLUDED)
-      // 0: +0 | 1–5: +6 | 6–9: +12 | 10–11: +20 | 12+: +30
+      // totalRot fix included
       const totalRot = newRot + existRot;
       if (totalRot === 0) score += 0;
       else if (totalRot <= 5) score += 6;
@@ -307,16 +294,13 @@
       else if (totalRot <= 11) score += 20;
       else score += 30;
 
-      // Existing rotations bonus
       if (existRot >= 6) score += 4;
-
-      // URL updates
       if (urlUpdates > 0) score += 1;
 
-      // Vendors (simple amplifier)
+      // Vendors
       if (vendors > 1) score += 0.5 * (vendors - 1);
 
-      // Multi-format bonus (static/animated/video/audio/DCO)
+      // Multi-format bonus
       const formatCount =
         (statics > 0 ? 1 : 0) +
         (animated > 0 ? 1 : 0) +
@@ -327,19 +311,17 @@
       if (formatCount === 3) score += 2;
       else if (formatCount >= 4) score += 4;
 
-      // Takeda Oncology UTM points (creative volume only)
+      // Takeda Oncology UTM points
       const totalCreativeSets = animated + statics + video + audio + dco;
       score += getTakedaUtmPoints(isTakeda, totalCreativeSets);
 
-      // Complexity mapping (Option A)
-      // Small: 0–15 | Medium: 16–24 | Large: 25–29 | Complex: 30+
+      // Complexity mapping
       let complexity =
         score >= 30 ? "Complex" :
         score >= 25 ? "Large" :
         score >= 16 ? "Medium" : "Small";
 
-      // Complex gating:
-      // Complex allowed only if rotations/DCO trigger it OR animated >= 13 (team preference)
+      // Complex gating
       const complexTriggered =
         (dco >= 4) ||
         (newRot >= 12) ||
@@ -353,10 +335,6 @@
       if (dco >= 4) complexity = "Complex";
       if (newRot >= 12 || totalRot >= 14) complexity = "Complex";
 
-      // Animated floors per team preference:
-      // 5–8 => minimum Medium
-      // 9–12 => minimum Large
-      // 13+ => Complex
       if (animated >= 13) complexity = "Complex";
       else if (animated >= 9 && (complexity === "Small" || complexity === "Medium")) complexity = "Large";
       else if (animated >= 5 && complexity === "Small") complexity = "Medium";
@@ -364,13 +342,11 @@
       return { complexity };
     }
 
-    // UI output: ONLY complexity level
     function calculate() {
       const r = computeScoreAndComplexity();
       document.getElementById("result").innerText = `Complexity Level: ${r.complexity}`;
     }
 
-    // PDF output: ONLY complexity level
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -378,11 +354,38 @@
       doc.setFontSize(14);
       doc.text("RequestIQ - Trafficking Summary", 10, 20);
 
-      const r = computeScoreAndComplexity();
-      doc.setFontSize(12);
-      doc.text(`Complexity Level: ${r.complexity}`, 10, 40);
+      let y = 30;
 
-      doc.save("requestiq-trafficking-complexity.pdf");
+      const takedaValue = document.getElementById("takedaOncology").value === "yes" ? "Yes" : "No";
+      doc.setFontSize(11);
+      doc.text(`Takeda Oncology: ${takedaValue}`, 10, y);
+      y += 10;
+
+      questions.forEach((q, i) => {
+        const val = parseInt(document.getElementById("q" + (i + 1)).value) || 0;
+        const line = `${i + 1}. ${q}: ${val}`;
+        const lines = doc.splitTextToSize(line, 180);
+        doc.text(lines, 10, y);
+        y += lines.length * 7;
+
+        if (y > 265) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+
+      const r = computeScoreAndComplexity();
+
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+
+      y += 6;
+      doc.setFontSize(12);
+      doc.text(`Complexity Level: ${r.complexity}`, 10, y);
+
+      doc.save("requestiq-trafficking-summary.pdf");
     }
   </script>
 </body>
